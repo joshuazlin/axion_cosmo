@@ -71,17 +71,21 @@ def PQ_epoch_diff(eta,field,fieldp,R1,T1,t1,fa,gstar,lamb=1,debug=False):
     """
 
     if debug:
-        print("Arguments to PQ_epoch_diff:",
-              f"eta:{eta},R:{R(gstar,T(gstar,t(eta,t1)))},R1:{R1},T1:{T1},fa:{fa},ratio:{(T1**2)/(3*(fa**2))}")
+        #print("Arguments to PQ_epoch_diff:",
+        #      f"eta:{eta},R:{R(gstar,T(gstar,t(eta,t1)))},R1:{R1},T1:{T1},fa:{fa},ratio:{(T1**2)/(3*(fa**2))}")
+        #print("Relative strengths",
+        #      f"symbreak:{eta**2},thermal:{(T1**2)/(3*(fa**2))}")
+        pass
 
     A = -(2/eta)*fieldp 
     B = rescaled_nabla(field,R(gstar,T(gstar,t(eta,t1)))/R1) 
     C = -lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + (T1**2)/(3*fa**2))
     if debug:
-        print("A,B,C",
-              np.average(np.abs(A)),
-              np.average(np.abs(B)),
-              np.average(np.abs(C)))
+        #print("A,B,C",
+        #      np.average(np.abs(A)),
+        #      np.average(np.abs(B)),
+        #      np.average(np.abs(C)))
+        pass
     return A + B + C
 
 

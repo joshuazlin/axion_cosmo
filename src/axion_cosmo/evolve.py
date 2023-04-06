@@ -15,52 +15,63 @@ def evolve_PQ(shape,
               etaini,
               deta, 
               Nstep,
-              name=None, logdir=None, logstep=None, debug=False):
+              name=None, logdir=None, tolog=None, flush=None, debug=False):
     """
     Evolution in the PQ epoch
 
     Inputs
-        init: 2 x N x N (x N) field representing initial conditions for equations (S9) and (S10)
-        dt: timestep
-        N: number of steps to take
-        logdir: (Optional) directory where to write field configurations, every logstep
-                pass it as an absolute or suffer the consequences
-
-    fa ~ 2.27e14 MeV
+               shape : shape of spatial dims
+                  fa : axion decay constant ~ 2.27e14 MeV
+          init_field : fn that takes shape and spits out an initial config
+          init_field : fn that takes shape and spits out an initial config'
+              etaini : starting eta
+                deta : d_eta
+               Nstep : how many steps
+                name : name of logfile
+              logdir : where to save logfile
+               tolog : list containing [("name",lambda f,fp: ..., how often to log this thing),...]
+               flush : how often to flush the logs
+               debug : whether to print out semi-useless debug statements
     """
 
-    print("HUH?",deta)
+    R1,T1,t1 = init_params(fa,81) #gstar fixed to 81 for now
+    field    = init_field(shape)
+    fieldp   = init_fieldp(shape)
+    y_yp     = np.vstack((field,fieldp))
+    eta      = etaini
+    logs     = {}
+    for x in tolog:
+        #print("huh?",x,logs,"huh??")
+        logs[x[0]] = []
 
-    R1,T1,t1 = init_params(fa,81)
-    field = init_field(shape)
-    fieldp = init_fieldp(shape)
-
-    print("EHH?",field.shape,fieldp.shape)
-
-    #Why does scipy require 1d? is it the adaptive stuff? yuck
-    #ev = scipy.integrate.RK45(lambda t,y_yp : np.vstack((y_yp[2:],PQ_epoch_diff(t,y_yp[:2],y_yp[2:],R1,T1,fa,lambda T : 81))),
-    #                     0.0001,np.vstack((field,fieldp)),800)
-    
-    #i = 0
-    #while ev.step():
-    #    if i%logstep == 0 and logdir is not None:
-    #        pickle.dump(ev.y[:2],open(f"{logdir}/{name}_{i}","wb"))
-    #    i += 1
-    #pickle.dump(ev.y[:2],open(f"{logdir}/{name}_final","wb"))
-
-    y_yp = np.vstack((field,fieldp))
-    #for i,eta in enumerate(np.linspace(0.0001,800,N)):
-    eta = etaini
     for i in range(Nstep):
         if debug:
             print("runnin",i,np.average(np.abs(y_yp)))
-            time.sleep(3)
-        if logdir is not None and logstep is not None:
-            if i%logstep == 0:
-                pickle.dump(y_yp,open(f"{logdir}/{name}_{i}","wb"))
+            time.sleep(0.1)
+
+        if tolog is not None:
+            assert name is not None
+            assert logdir is not None
+            for x in tolog:
+                #print(x)
+                if i%x[2] == 0:
+                    logs[x[0]].append(x[1](y_yp[:2],y_yp[2:]))
+            if flush is not None:
+                if i%flush == 0:
+                    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
         y_yp = RK4(lambda t,y_yp : np.vstack((y_yp[2:],PQ_epoch_diff(eta,y_yp[:2],y_yp[2:],R1,T1,t1,fa,81,debug=debug))),
                    eta,y_yp,deta)
         eta += deta
-    pickle.dump(y_yp,open(f"{logdir}/{name}_final","wb"))
+    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
+    return logs
+
+
+
+
+
+
+
+
+
 
 

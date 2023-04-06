@@ -3,10 +3,10 @@ import axion_cosmo as ac
 
 #They quote 2.27e14 I think in conclusion
 ac.evolve_PQ(shape=(100,100,10),
-             fa=2.27e14,
-             init_field=lambda shape: 1e5+1e0*np.random.random((2,)+shape),#ac.dummy_thermal(shape,1e5),
-             init_fieldp=lambda shape: np.zeros((2,)+shape),#ac.dummy_thermal(shape,1e1),
-             etaini=0.0001,
+             fa=2.27e20,
+             init_field=lambda shape: 1+np.zeros((2,)+shape),#lambda shape:ac.dummy_thermal(shape,1e0),
+             init_fieldp=lambda shape: 1+np.zeros((2,)+shape),#lambda shape:ac.dummy_thermal(shape,1e0),
+             etaini=280,
              deta=0.004,
              Nstep=62500,
              name="test",
