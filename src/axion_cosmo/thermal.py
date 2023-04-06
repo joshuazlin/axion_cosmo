@@ -7,7 +7,8 @@ def thermal(...):
     Output: 2 x N x N (x N) real numpy array to feed into evolution scripts
 """
 
+import numpy as np
 
 def dummy_thermal(shape,eps=0.1):
     assert type(shape) is tuple
-    return 2*eps*numpy.random.random((2,) + shape) - eps
+    return 2*eps*np.random.random((2,) + shape) - eps

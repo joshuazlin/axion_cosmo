@@ -9,4 +9,5 @@ Modules (contained in the src/ directory)
  - measure.py       : Measurements of fun physics observables!
  - video.py         : if we want to make it a video
 
-
+Things to remember to do
+ - Should probably get a .gitignore
