@@ -64,14 +64,25 @@ def t_T(gstar,T):
 def T(gstar,t):
     return (0.3012*(gstar**(-1/2))*1.220890e22/t)**(1/2)
 
-def PQ_epoch_diff(eta,field,fieldp,R1,T1,t1,fa,gstar,lamb=1):
+def PQ_epoch_diff(eta,field,fieldp,R1,T1,t1,fa,gstar,lamb=1,debug=False):
     """
     (S9) and (S10)
     y'' = f(t,y,y'), this is that function f. (in the PQ epoch)
     """
-    return -(2/eta)*fieldp + \
-           rescaled_nabla(field,R(gstar,T(gstar,t(eta,t1)))) -\
-           lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + (T1**2)/(3*fa**2))
+
+    if debug:
+        print("Arguments to PQ_epoch_diff:",
+              f"eta:{eta},R:{R(gstar,T(gstar,t(eta,t1)))},R1:{R1},T1:{T1},fa:{fa},ratio:{(T1**2)/(3*(fa**2))}")
+
+    A = -(2/eta)*fieldp 
+    B = rescaled_nabla(field,R(gstar,T(gstar,t(eta,t1)))/R1) 
+    C = -lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + (T1**2)/(3*fa**2))
+    if debug:
+        print("A,B,C",
+              np.average(np.abs(A)),
+              np.average(np.abs(B)),
+              np.average(np.abs(C)))
+    return A + B + C
 
 
 def init_params(fa,gstar):
@@ -79,12 +90,13 @@ def init_params(fa,gstar):
     these ARENT where you initialize, these are at eta = 1
     """
     #T1 = scipy.optimize.fsolve(lambda T: H(gstar,T) - fa, 1)
-    T1 = fa*1.220890e22/(1.660*(gstar**(1/2)))
+    T1 = (fa*1.220890e22/(1.660*(gstar**(1/2))))**(1/2)
     R1 = R(gstar,T1)
     t1 = t_T(gstar,T1)
     return R1,T1,t1
 
 def RK4(f,t,y,h):
+    #print("HUHH?",f,t,y,h)
     k1 = f(t,y)
     k2 = f(t+h/2,y+h*k1/2)
     k3 = f(t+h/2,y+h*k2/2)
