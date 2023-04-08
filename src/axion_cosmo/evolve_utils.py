@@ -9,6 +9,8 @@ def grad(field,dir,order,N):
     take derivative of a field, in a specific direction,
     with some number of points included (stencil number)
     This is a cheap-imitation of something that would use non-axis points 
+    https://web.media.mit.edu/~crtaylor/calculator.html
+    Probably thats what they meant by seven-point stencil though, the (2,3) scheme I wrote below
 
     Inputs:
         field: real numpy array
@@ -16,7 +18,11 @@ def grad(field,dir,order,N):
         order: order of derivative to compute
         N: number of points to include
     """
-
+    
+    if (order,N) == (2,3):
+        return (np.roll(field,-1,axis=dir) + \
+               -2*np.roll(field,-1,axis=dir) + \
+               np.roll(field,1,axis=dir))
     if (order,N) == (2,7):
         return (2*np.roll(field,-3,axis=dir) + \
                -27*np.roll(field,-2,axis=dir) + \
@@ -29,7 +35,7 @@ def grad(field,dir,order,N):
         print(order,N)
         raise NotImplementedError
 
-def rescaled_nabla(field,scale,N=7):
+def rescaled_nabla(field,scale,N=3):
     """
     take rescaled nabla^2 of a field (defined under (S8))
     It's taking nabla with respect to space "at the beginning", really we just need some scale factor, scale
@@ -93,14 +99,12 @@ def init_params(fa,gstar):
     """
     these ARENT where you initialize, these are at eta = 1
     """
-    #T1 = scipy.optimize.fsolve(lambda T: H(gstar,T) - fa, 1)
     T1 = (fa*1.220890e22/(1.660*(gstar**(1/2))))**(1/2)
     R1 = R(gstar,T1)
     t1 = t_T(gstar,T1)
     return R1,T1,t1
 
 def RK4(f,t,y,h):
-    #print("HUHH?",f,t,y,h)
     k1 = f(t,y)
     k2 = f(t+h/2,y+h*k1/2)
     k3 = f(t+h/2,y+h*k2/2)

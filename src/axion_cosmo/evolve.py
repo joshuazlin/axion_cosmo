@@ -7,6 +7,8 @@ def evolve():
 from .evolve_utils import *
 import pickle
 import time
+import tqdm
+import h5py
 
 def evolve_PQ(shape,
               fa, 
@@ -15,7 +17,11 @@ def evolve_PQ(shape,
               etaini,
               deta, 
               Nstep,
-              name=None, logdir=None, tolog=None, flush=None, debug=False):
+              name=None,
+              logdir=None,
+              tolog=[],
+              flush=100,
+              debug=False):
     """
     Evolution in the PQ epoch
 
@@ -29,7 +35,7 @@ def evolve_PQ(shape,
                Nstep : how many steps
                 name : name of logfile
               logdir : where to save logfile
-               tolog : list containing [("name",lambda f,fp: ..., how often to log this thing),...]
+               tolog : list containing [("name",lambda f_fp: ..., how often to log this thing, shape of the thing, dtype),...]
                flush : how often to flush the logs
                debug : whether to print out semi-useless debug statements
     """
@@ -39,31 +45,43 @@ def evolve_PQ(shape,
     fieldp   = init_fieldp(shape)
     y_yp     = np.vstack((field,fieldp))
     eta      = etaini
-    logs     = {}
+    
+    #logs     = {}
+    #for x in tolog:
+    #    #print("huh?",x,logs,"huh??")
+    #    logs[x[0]] = []
+    logfile = h5py.File(f'{logdir}/{name}.hdf5', 'w')
+    datasets = []
     for x in tolog:
-        #print("huh?",x,logs,"huh??")
-        logs[x[0]] = []
+        datasets.append(logfile.create_dataset(x[0], (Nstep//x[2]+1,) + x[3], x[4]))
 
-    for i in range(Nstep):
+    for i in tqdm.tqdm(range(Nstep)):
         if debug:
-            print("runnin",i,np.average(np.abs(y_yp)))
+            print("running",i,np.average(np.abs(y_yp)))
             time.sleep(0.1)
 
-        if tolog is not None:
-            assert name is not None
-            assert logdir is not None
-            for x in tolog:
-                #print(x)
-                if i%x[2] == 0:
-                    logs[x[0]].append(x[1](y_yp[:2],y_yp[2:]))
-            if flush is not None:
-                if i%flush == 0:
-                    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
+        for j,x in enumerate(tolog):
+            if i%x[2] == 0:
+                datasets[j][i//x[2]] = x[1](y_yp)
+        if i%flush == 0:
+            logfile.flush()
+
+#        if tolog is not None:
+#            assert name is not None
+#            assert logdir is not None
+#            for x in tolog:
+#                #print(x)
+#                if i%x[2] == 0:
+#                    logs[x[0]].append(x[1](y_yp[:2],y_yp[2:]))
+#            if flush is not None:
+#                if i%flush == 0:
+#                    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
         y_yp = RK4(lambda t,y_yp : np.vstack((y_yp[2:],PQ_epoch_diff(eta,y_yp[:2],y_yp[2:],R1,T1,t1,fa,81,debug=debug))),
                    eta,y_yp,deta)
         eta += deta
-    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
-    return logs
+#    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
+    logfile.close()
+    return 
 
 
 
