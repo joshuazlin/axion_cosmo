@@ -40,56 +40,33 @@ def evolve_PQ(shape,
                debug : whether to print out semi-useless debug statements
     """
 
-    R1,T1,t1 = init_params(fa,81) #gstar fixed to 81 for now
-    field    = init_field(shape)
-    fieldp   = init_fieldp(shape)
-    y_yp     = np.vstack((field,fieldp))
-    eta      = etaini
+    R1,T1,t1 = init_params(fa,81)           #gstar fixed to 81 for now
+    field    = init_field(shape)            #Init field
+    fieldp   = init_fieldp(shape)           #and its derivative
+    y_yp     = np.vstack((field,fieldp))    #Stackem
+    eta      = etaini                       #initial eta
     
-    #logs     = {}
-    #for x in tolog:
-    #    #print("huh?",x,logs,"huh??")
-    #    logs[x[0]] = []
-    logfile = h5py.File(f'{logdir}/{name}.hdf5', 'w')
-    datasets = []
-    for x in tolog:
-        datasets.append(logfile.create_dataset(x[0], (Nstep//x[2]+1,) + x[3], x[4]))
-
     for i in tqdm.tqdm(range(Nstep)):
         if debug:
             print("running",i,np.average(np.abs(y_yp)))
             time.sleep(0.1)
 
+        if i%flush == 0:
+            logfile = h5py.File(f'{logdir}/{name}_{i//flush}.hdf5', 'w')
+            datasets = []
+                for x in tolog:
+                    datasets.append(logfile.create_dataset(x[0], (flush//x[2]+1,) + x[3], x[4]))
+
         for j,x in enumerate(tolog):
             if i%x[2] == 0:
                 datasets[j][i//x[2]] = x[1](y_yp)
-        if i%flush == 0:
-            logfile.flush()
 
-#        if tolog is not None:
-#            assert name is not None
-#            assert logdir is not None
-#            for x in tolog:
-#                #print(x)
-#                if i%x[2] == 0:
-#                    logs[x[0]].append(x[1](y_yp[:2],y_yp[2:]))
-#            if flush is not None:
-#                if i%flush == 0:
-#                    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
-        y_yp = RK4(lambda t,y_yp : np.vstack((y_yp[2:],PQ_epoch_diff(eta,y_yp[:2],y_yp[2:],R1,T1,t1,fa,81,debug=debug))),
+        if i%flush == flush - 1:
+            logfile.flush()
+            logfile.close()
+
+        y_yp = RK4(lambda eta,y_yp : np.vstack((y_yp[2:],PQ_epoch_diff(eta,y_yp[:2],y_yp[2:],R1,T1,t1,fa,81,debug=debug))),
                    eta,y_yp,deta)
         eta += deta
-#    pickle.dump(logs,open(f"{logdir}/{name}","wb"))
-    logfile.close()
+
     return 
-
-
-
-
-
-
-
-
-
-
-
