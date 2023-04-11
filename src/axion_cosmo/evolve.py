@@ -49,17 +49,18 @@ def evolve_PQ(shape,
     for i in tqdm.tqdm(range(Nstep)):
         if debug:
             print("running",i,np.average(np.abs(y_yp)))
-            time.sleep(0.1)
+            time.sleep(3)
 
         if i%flush == 0:
+            #print(f'{logdir}/{name}_{i//flush}.hdf5')
             logfile = h5py.File(f'{logdir}/{name}_{i//flush}.hdf5', 'w')
             datasets = []
-                for x in tolog:
-                    datasets.append(logfile.create_dataset(x[0], (flush//x[2]+1,) + x[3], x[4]))
+            for x in tolog:
+                datasets.append(logfile.create_dataset(x[0], (flush//x[2]+1,) + x[3], x[4]))
 
         for j,x in enumerate(tolog):
             if i%x[2] == 0:
-                datasets[j][i//x[2]] = x[1](y_yp)
+                datasets[j][(i%flush)//x[2]] = x[1](y_yp)
 
         if i%flush == flush - 1:
             logfile.flush()

@@ -78,6 +78,7 @@ def PQ_epoch_diff(eta,field,fieldp,R1,T1,t1,fa,gstar,lamb=1,debug=False):
     A = -(2/eta)*fieldp 
     B = rescaled_nabla(field,R(gstar,T(gstar,t(eta,t1)))/R1) 
     C = -lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + (T1**2)/(3*fa**2))
+    print("ABC",np.average(A),np.average(B),np.average(C))
     return A + B + C
 
 def init_params(fa,gstar):
@@ -91,7 +92,14 @@ def init_params(fa,gstar):
 
 def RK4(f,t,y,h):
     k1 = f(t,y)
+    #print("Huh?",k1.shape,np.average(k1,axis=(1,2,3)),np.average(np.abs(k1),axis=(1,2,3)),np.std(np.abs(k1),axis=(1,2,3)),
+    #       np.average(k1),np.std(k1))
     k2 = f(t+h/2,y+h*k1/2)
     k3 = f(t+h/2,y+h*k2/2)
     k4 = f(t+h,y+h*k3)
     return y + (1/6)*(k1+2*k2+2*k3+k4)*h
+
+
+
+
+
