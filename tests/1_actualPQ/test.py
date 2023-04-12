@@ -3,11 +3,11 @@ import axion_cosmo as ac
 
 #They quote 2.27e14 I think in conclusion
 ac.evolve_PQ(shape=(10,10,10),
-             fa=2.27e14,
-             init_field=lambda shape: 1e2*np.random.random((2,)+shape),
-             init_fieldp=lambda shape: 1e2*np.random.random((2,)+shape),
-             etaini=0.001,
-             deta=0.0001,
+             fa=2.27e20,
+             init_field=lambda shape: 1e1*np.random.random((2,)+shape),
+             init_fieldp=lambda shape: 1e1*np.random.random((2,)+shape),
+             etaini=1000,
+             deta=0.00001,
              Nstep=10000000,
              name="PQ",
              logdir="/Users/joshlin/axion_cosmo/tests/1_actualPQ/data",

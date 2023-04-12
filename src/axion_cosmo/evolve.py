@@ -49,7 +49,7 @@ def evolve_PQ(shape,
     for i in tqdm.tqdm(range(Nstep)):
         if debug:
             print("running",i,np.average(np.abs(y_yp)))
-            time.sleep(3)
+            time.sleep(1)
 
         if i%flush == 0:
             #print(f'{logdir}/{name}_{i//flush}.hdf5')

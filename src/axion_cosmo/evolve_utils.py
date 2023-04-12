@@ -47,7 +47,7 @@ def rescaled_nabla(field,scale,N=3):
     to_return = np.zeros(field.shape)
     for i in range(1,n_space + 1):
         to_return = to_return + grad(field,i,2,N)
-    return to_return/(scale**2)
+    return to_return*(scale**2)
 
 def R(gstar,T):
     """
@@ -79,6 +79,7 @@ def PQ_epoch_diff(eta,field,fieldp,R1,T1,t1,fa,gstar,lamb=1,debug=False):
     B = rescaled_nabla(field,R(gstar,T(gstar,t(eta,t1)))/R1) 
     C = -lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + (T1**2)/(3*fa**2))
     print("ABC",np.average(A),np.average(B),np.average(C))
+    print((T1**2)/(3*fa**2),(eta**2),R(gstar,T(gstar,t(eta,t1))),R1)
     return A + B + C
 
 def init_params(fa,gstar):
