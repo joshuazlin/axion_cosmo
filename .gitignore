@@ -1,7 +1,7 @@
 
 #The hdf5 files are too big...
 *.hdf5
-
+josh_notebooks/
 
 
 # Byte-compiled / optimized / DLL files
