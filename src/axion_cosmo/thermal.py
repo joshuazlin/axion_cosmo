@@ -10,45 +10,44 @@ def thermal(...):
 import numpy as np
 
 def thermal(shape,
-            c, 
-            a,
-            eta_PQ,
-            fa,
-            lamb=1,
-            kmax=10):
+            params,
+            lamb=1):
     '''
-    a : lattice
+    If everything is done dimensionlessly, then does it work out? 
     '''
     assert type(shape) is tuple
-    p = params({'eta_PQ': eta_PQ, 'fa' : fa})
-    print(p['T'],p['eta_PQ'])
     
     #Easiest to initialize lattice momenta
     k2_lat = np.sum((np.sin(2*np.pi*(np.indices(shape).T/np.array(shape).T).T)**2),axis=0)
-    if (p['T']**2)/3 - fa**2 < 0:
-        print('HUH?',p['T'],fa/np.sqrt(3))
+    if (params['T']**2)/3 - params['fa']**2 < 0:
+        print('Spot check, youve initialized after symmetry breaking, ruhroh',params['T'],params['fa']/np.sqrt(3))
         raise
-    wk = np.sqrt(k2_lat/((a*eta_PQ/fa)**2) + lamb*((p['T']**2)/3 - fa**2))
-    nk = 1/(np.exp(wk/p['T']) - 1)
+    wk = np.sqrt(k2_lat/((params['a']*params['eta_PQ']/params['fa'])**2) + \
+                             lamb*((params['T']**2)/3 - params['fa']**2)) #dimension 1
+    nk = 1/(np.exp(wk/params['T']) - 1)
     
     # fill whole array with Gaussian dist
-    field   = np.random.normal(0,np.sqrt((nk/wk)*np.prod(shape)*((a*eta_PQ/fa)**3)),(2,)+shape)
-    field_p = np.random.normal(0,np.sqrt(nk*wk*np.prod(shape)*((a*eta_PQ/fa)**3)),(2,)+shape)
+    field   = np.random.normal(0,
+                np.sqrt((nk/wk)*np.prod(shape)*((params['a']*params['eta_PQ']/params['fa'])**3)),(2,)+shape) #[-2]
+    field_p = np.random.normal(0,
+                np.sqrt(nk*wk*np.prod(shape)*((params['a']*params['eta_PQ']/params['fa'])**3)),(2,)+shape) #[-1]
 
     # mask out with zeros
     dist = np.sum([np.min(np.array([x**2,(shape[i]-x)**2]),axis=0) for i,x in enumerate(np.indices(shape))],axis=0)
-    field[0]   = np.where(dist < kmax**2, field[0], 0)
-    field[1]   = np.where(dist < kmax**2, field[1], 0)
-    field_p[0] = np.where(dist < kmax**2, field_p[0], 0)
-    field_p[1] = np.where(dist < kmax**2, field_p[1], 0)
+    field[0]   = np.where(dist < params['kmax']**2, field[0], 0)
+    field[1]   = np.where(dist < params['kmax']**2, field[1], 0)
+    field_p[0] = np.where(dist < params['kmax']**2, field_p[0], 0)
+    field_p[1] = np.where(dist < params['kmax']**2, field_p[1], 0)
 
     # Inverse Fourier Transform!
-    field = np.fft.irfftn(field,shape)/fa
-    field_p = np.fft.irfftn(field_p,shape)/fa
+    field =   ((params['a']*params['eta_PQ']/params['fa'])**3)**(-1)*np.fft.irfftn(field,shape)#/params['fa']   [1]
+    field_p = ((params['a']*params['eta_PQ']/params['fa'])**3)**(-1)*np.fft.irfftn(field_p,shape)#/params['fa'] [2]
 
     # return psi not phi fields
     # including jacobian factor from dt to d eta
-    return np.vstack((field,field_p * eta_PQ * fa))
+    return np.vstack((field/params['fa'],field_p * params['eta_PQ']/(params['fa']**2)))
+
+
 
 #def dummy_thermal(shape,eps=0.1):
 #    assert type(shape) is tuple

@@ -5,19 +5,32 @@ import numpy as np
 import scipy
 
 def RK4(f,t,y,h):
+    """
+    One RK4 step, assumes f(t,y) := y', with a stepsize h
+    """
     k1 = f(t,y)
     k2 = f(t+h/2,y+h*k1/2)
     k3 = f(t+h/2,y+h*k2/2)
     k4 = f(t+h,y+h*k3)
     return y + (1/6)*(k1+2*k2+2*k3+k4)*h
 
+def RKN4(f,t,y,yp,h):
+    """
+    One RKN step, assumes f(t,y) := y'', with a stepsize h
+    """
+    k1 = f(t,y)
+    k2 = f(t+ (h/2),y + (h/2)*yp + (h**2)*(1/8)*k1)
+    k3 = f(t+h, y+h*yp+(h**2)*(1/2)*k2)
+    return np.array([y + h*yp + (h**2)*((k1/6)+(k2/3)),
+            yp + h*((k1/6)+(4*k2/6)+(k3/6))])
+
 def grad(field,dir,order,N):
     """
     take derivative of a field, in a specific direction,
     with some number of points included (stencil number)
-    This is a cheap-imitation of something that would use non-axis points
-    https://web.media.mit.edu/~crtaylor/calculator.html
-    Probably thats what they meant by seven-point stencil though, the (2,3) scheme I wrote below
+    Probably thats what they meant by seven-point stencil though, the (2,3) scheme I wrote below.
+    "neater" to think of it as a convolved stencil, use fft methods,
+    but it's good enough for now
 
     Inputs:
         field: real numpy array
@@ -56,26 +69,39 @@ def rescaled_nabla(field,a,N=3):
         to_return = to_return + grad(field,i,2,N)
     return to_return/(a**2)
 
-def PQ_epoch_diff(eta,field,fieldp,c,a,fa,lamb=1,debug=False):
+def PQ_epoch_diff(field,fieldp,params,lamb=1,debug=False):
     """
     (S9) and (S10)
     y'' = f(t,y,y'), this is that function f. (in the PQ epoch)
     a:  dimensionless "Lattice spacing" (old: L_phys (in units of H1) / L_lat (number of sites))
     c : T1**2/3fa**2
     """
-    A = -(2/eta)*fieldp
-    B = rescaled_nabla(field,a*eta/fa)
-    C = -lamb*field*((eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + c)
-    #print(np.sum(A),np.sum(np.abs(B)),np.sum(C))
+    A = -(2/params['eta_PQ'])*fieldp
+    B = rescaled_nabla(field,params['a']/params['fa'])
+    C = -lamb*field*((params['eta_PQ']**2)*\
+                         (np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1) + params['c'])
     return A + B + C
 
-def earlyQCD_epoch_diff(eta,field,fieldp,scale,etac,lamb=5504,n=6.68,debug=False):
-    A = -(2/eta)*fieldp
-    B = rescaled_nabla(field,scale)
-    C = -lamb*field*(eta**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1)
-    D0 = (min(eta,etac)**n)*(eta**2)*(np.sum(field**2,axis=0)**(-3/2))
+def PQ_epoch_diff_rescaled(field,params,lamb=1,debug=False):
+    """
+    Rewritten, without damping term, and with a complex field
+    """
+    return rescaled_nabla(field,params['a']/params['fa']) \
+            -lamb*field*(np.abs(field)**2 - params['eta_PQ']**2 + params['c'])
+
+def earlyQCD_epoch_diff(field,fieldp,params,lamb=1,debug=False):
+    """
+    Note that lamb = 1 is the lamb from PQ evolution.
+    """
+    A = -(2/params['eta_QCD'])*fieldp
+    B = rescaled_nabla(field,params['a']*params['eta_PQ']/params['H1_QCD']) #Is this eta_PQ or eta_QCD? Its.... I need to fix this
+                                                    #its with respect to a1 H1 x, where 1 is now 1_QCD
+    C = -(lamb*params['fa']**2/(params['H1_QCD']**2))\
+            *field*(params['eta_QCD']**2)*(np.repeat(np.expand_dims(np.sum(field**2,axis=0),0),2,0) - 1)
+    D0 = (min(params['eta_QCD'],params['etac_QCD'])**params['n'])*\
+                    (params['eta_QCD']**2)*(np.sum(field**2,axis=0)**(-3/2))
     D1 = -field[1]**2; D2 = field[0]*field[1]
-    D = np.vstack((D1/D0,D2/D0))
+    D = np.stack((D1/D0,D2/D0),axis=0)
     return A + B + C + D
 
 def lateQCD_epoch_diff():
