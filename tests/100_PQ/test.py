@@ -12,16 +12,15 @@ params={
   'Nstep' : 10000,
   'a' : 0.25,
   'stage' : 'PQ',
-  'kmax' : 3,
+  'kmax' : 20,
   'gstar' : 81,
 }
-
 ac.evolve(shape=(100,100,100),
           params=params,
           field=None,
           fieldp=None,
           name='test',
           logdir='',
-          tolog=[("field",lambda f_fp:f_fp,50,(2,100,100,100),np.complex64),
+          tolog=[("field",lambda f_fp:f_fp,50,(2,200,200,200),np.complex64),
                  ("vev",lambda f_fp:np.average(np.abs(f_fp[0])),1,(1,),np.float64)],
          flush=10000,)
