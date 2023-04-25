@@ -4,12 +4,13 @@ import numpy as np
 import sys
 import h5py
 
-
+if len(sys.argv) < 3:
+    print("ERROR: You need to pass me arguments, see README.md about correct argument structure.")
 
 # command line input of era of evolution and evolution file name to read
-era = sys.argv[1]
-filename = sys.argv[2]
-timestamp = sys.argv[3]
+era = sys.argv[1]       # PQ/QCD
+filename = sys.argv[2]  # where to read the data from
+timestamp = sys.argv[3] # which timeslice to use from the data
 
 
 # first run PQ
