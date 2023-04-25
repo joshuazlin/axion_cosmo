@@ -69,7 +69,7 @@ def rescaled_nabla(field,a,N=3):
     """
     return np.sum([grad(field,i,2,N) for i in range(len(field.shape))],axis=0)/(a**2)
 
-def PQ_epoch_diff_rescaled(field,params,lamb=1,debug=False):
+def PQ_epoch_diff_rescaled(field,params,lamb=0.1,debug=False):
     """Returns the second derivative of the field in PQ era
 
     Returns the second derivative of the field, when we have rewritten the
@@ -84,8 +84,10 @@ def PQ_epoch_diff_rescaled(field,params,lamb=1,debug=False):
     Returns:
       Second derivative of field (with respect to eta)
     """
-    return rescaled_nabla(field,params['a']/params['fa']) \
-            -lamb*field*(np.abs(field)**2 - params['eta_PQ']**2 + params['c'])
+    return rescaled_nabla(field,params['set_scale']) \
+           -params['set_lambda']*field*(np.abs(field)**2 - params['eta_PQ']**2 + params['set_c'])
+    #return rescaled_nabla(field,params['a']/params['fa']) \
+    #        -lamb*field*(np.abs(field)**2 - params['eta_PQ']**2 + params['c'])
 
 def earlyQCD_epoch_diff_rescaled(field,params,debug=False):
     """Returns the second derivative of the field in earlyQCD era.
@@ -101,10 +103,34 @@ def earlyQCD_epoch_diff_rescaled(field,params,debug=False):
     Returns:
       Second derivative of field (with respect to eta)
     """
-    return rescaled_nabla(field,params['a']/params['fa']) \
+    #return rescaled_nabla(field,params['a']/params['fa']) \
+    #       -params['set_lambda_tilde']*field*(np.abs(field)**2 - params['eta_QCD']**2) \
+    #       -params['eta_QCD']**4*min(params['eta_QCD'],params['set_etac_QCD'])**params['n']*np.abs(field)**(-3)*\
+    #        (-np.imag(field)**2+1j*np.real(field)*np.imag(field))
+    return rescaled_nabla(field,params['set_scale']) \
            -params['set_lambda_tilde']*field*(np.abs(field)**2 - params['eta_QCD']**2) \
            -params['eta_QCD']**4*min(params['eta_QCD'],params['set_etac_QCD'])**params['n']*np.abs(field)**(-3)*\
             (-np.imag(field)**2+1j*np.real(field)*np.imag(field))
+
+def earlyQCD_epoch_diff_rescaled_N(field,params,debug=False):
+    """Returns the second derivative of the field in earlyQCD era, with arbitrary N
+
+    Returns the second derivative of the field, when we have rewritten the
+    equation to not have single derivative terms. See the writeup for details.
+
+    Inputs:
+       field: complex field, possibly 2D or 3D, with shape
+              Lx x Ly x (Lz)
+      params: dictionary containing cosmological parameters.
+
+    Returns:
+      Second derivative of field (with respect to eta)
+    """
+    #print("N")
+    return rescaled_nabla(field,params['set_scale']) \
+           -params['set_lambda_tilde']*field*(np.abs(field)**2 - params['eta_QCD']**2) \
+           -params['eta_QCD']**4*min(params['eta_QCD'],params['set_etac_QCD'])**params['n']*np.abs(field)**(-2)*\
+            1j*field*np.sin(params['N']*np.angle(field))/params['N']
 
 def PQ_epoch_diff(field,fieldp,params,lamb=1,debug=False):
     """DEPRECATED: please see PQ_epoch_diff_rescaled

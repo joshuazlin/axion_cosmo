@@ -39,6 +39,7 @@ def evolve(shape,
     """
 
     params = update_params(params)
+    print(f"stage,{params['stage']}")
     if params['stage'] == 'PQ':
         print(f'CHECK: Simulation from eta = {params["eta_PQ"]} to eta = {params["eta_PQ"] + params["Nstep"]*params["deta"]}')
     elif params['stage'] == 'earlyQCD':
@@ -47,10 +48,15 @@ def evolve(shape,
     if field is None:
         y_yp = params['eta_PQ']*thermal(shape,params)
     else:
-        if params['stage'] == 'earlyQCD':
+        if params['stage'] in ['earlyQCD','earlyQCDN']:
             y_yp = params['eta_QCD']*np.array([field,fieldp])    #Stackem
         else:
             raise
+
+    if params['stage'] == 'PQ' and 'Ntherm' in params.keys():
+        for i in tqdm.tqdm(range(params['Ntherm'])):
+            y_yp = RKN4(lambda eta, y: PQ_epoch_diff_rescaled(y,params,debug=debug),
+                        params['eta_PQ'],y_yp[0],y_yp[1],params['deta'])
 
     for i in tqdm.tqdm(range(params['Nstep'])):
         if debug:
@@ -75,6 +81,10 @@ def evolve(shape,
             params['eta_PQ'] = params['eta_PQ'] + params['deta']
         elif params['stage'] == 'earlyQCD':
             y_yp = RKN4(lambda eta, y: earlyQCD_epoch_diff_rescaled(y,params,debug=debug),
+                        params['eta_QCD'],y_yp[0],y_yp[1],params['deta'])
+            params['eta_QCD'] = params['eta_QCD'] + params['deta']
+        elif params['stage'] == 'earlyQCDN':
+            y_yp = RKN4(lambda eta, y: earlyQCD_epoch_diff_rescaled_N(y,params,debug=debug),
                         params['eta_QCD'],y_yp[0],y_yp[1],params['deta'])
             params['eta_QCD'] = params['eta_QCD'] + params['deta']
         else:
