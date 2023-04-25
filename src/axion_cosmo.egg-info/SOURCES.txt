@@ -1,6 +1,0 @@
-README.md
-setup.py
-src/axion_cosmo.egg-info/PKG-INFO
-src/axion_cosmo.egg-info/SOURCES.txt
-src/axion_cosmo.egg-info/dependency_links.txt
-src/axion_cosmo.egg-info/top_level.txt
