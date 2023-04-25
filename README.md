@@ -1,6 +1,6 @@
 # Cosmology Final Project
 
-Final Project for Harvard Cosmology class, taught by Cora Dvorkin. Reproduction of [this paper](https://arxiv.org/abs/1906.00967).
+Final Project for Harvard Cosmology class, taught by Cora Dvorkin. Reproduction of [this paper](https://arxiv.org/abs/1906.00967). You can read our [final paper here](axion_cosmo.pdf), and read our [presentation slides here](presentation/axion_cosmo.pdf).
 
 Installation Instructions
 
