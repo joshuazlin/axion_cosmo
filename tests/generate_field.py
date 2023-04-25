@@ -11,6 +11,7 @@ logdir=''
 
 if len(sys.argv) < 2:
     print("ERROR: You need to pass me enough arguments! See the README.md for correct usage")
+    raise
 
 # command line input of shape 
 shape = tuple(map(int, sys.argv[1:]))

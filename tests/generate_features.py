@@ -6,6 +6,7 @@ import h5py
 
 if len(sys.argv) < 3:
     print("ERROR: You need to pass me arguments, see README.md about correct argument structure.")
+    raise
 
 # command line input of era of evolution and evolution file name to read
 era = sys.argv[1]       # PQ/QCD
