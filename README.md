@@ -8,9 +8,9 @@ Additional References
 Installation Instructions
 
 Run pip install -e .
-in the home directory of this folder. tests/ includes some test python scripts that you can then run from command line to generate data. <br>
- - generate_field.py     : From command line, run "python generate_field.py [dimx] [dimy] [dimz]"
-                           e.g. python generate_field.py 100 100 100
+in the home directory of this folder. tests/ includes some test python scripts that you can then run from command line to generate data. 
+ - generate_field.py     : From command line, run "python generate_field.py [dimx] [dimy] [dimz]" <br>
+                           e.g. python generate_field.py 100 100 100 <br>
                            Outputs two .hdf5 files, one for the PQ part of the evolution and one for the QCD part of the evolution
                            e.g. "PQ_ev_(100, 100, 100)_0.hdf5" and "QCD_ev_(100, 100, 100)_0.hdf5"
                            You may investigate these files if you wish, or simply use them to generate the topological and energy features
