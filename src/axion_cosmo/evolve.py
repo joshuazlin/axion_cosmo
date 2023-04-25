@@ -39,7 +39,7 @@ def evolve(shape,
     """
 
     params = update_params(params)
-    print(f"stage,{params['stage']}")
+    print(f"Simulating {params['stage']} stage")
     if params['stage'] == 'PQ':
         print(f'CHECK: Simulation from eta = {params["eta_PQ"]} to eta = {params["eta_PQ"] + params["Nstep"]*params["deta"]}')
     elif params['stage'] == 'earlyQCD':
