@@ -8,7 +8,7 @@ Additional References
 Installation Instructions
 
 Run pip install -e .
-in the home directory of this folder. tests/ includes some test python scripts that you can then run from command line to generate data.
+in the home directory of this folder. tests/ includes some test python scripts that you can then run from command line to generate data. <br>
  - generate_field.py     : From command line, run "python generate_field.py [dimx] [dimy] [dimz]"
                            e.g. python generate_field.py 100 100 100
                            Outputs two .hdf5 files, one for the PQ part of the evolution and one for the QCD part of the evolution
