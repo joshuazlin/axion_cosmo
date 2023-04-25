@@ -19,7 +19,7 @@ params={
   'set_c' : 1,
   'Ntherm' : 1000,
 }
-evolve(shape=(100,100,100),
+ac.evolve(shape=(100,100,100),
           params=params,
           field=None,
           fieldp=None,
