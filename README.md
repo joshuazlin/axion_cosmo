@@ -2,9 +2,6 @@
 
 Final Project for Harvard Cosmology class, taught by Cora Dvorkin. Reproduction of [this paper](https://arxiv.org/abs/1906.00967).
 
-Additional References
- - https://arxiv.org/pdf/1202.5851.pdf
-
 Installation Instructions
 
 Run pip install -e .
