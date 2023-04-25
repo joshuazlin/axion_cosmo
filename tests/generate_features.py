@@ -11,7 +11,10 @@ if len(sys.argv) < 3:
 # command line input of era of evolution and evolution file name to read
 era = sys.argv[1]       # PQ/QCD
 filename = sys.argv[2]  # where to read the data from
-timestamp = sys.argv[3] # which timeslice to use from the data
+if len(sys.argv) == 4:
+    timestamp = sys.argv[3] # which timeslice to use from the data
+else:
+    timestamp = -1
 
 
 # first run PQ
