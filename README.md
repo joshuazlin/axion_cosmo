@@ -2,9 +2,12 @@
 
 Final Project for Harvard Cosmology class, taught by Cora Dvorkin. Reproduction of [this paper](https://arxiv.org/abs/1906.00967). You can read our [final paper here](axion_cosmo.pdf), and read our [presentation slides here](presentation/axion_cosmo.pdf).
 
-Installation Instructions
+## Installation Instructions
 
-Run pip install -e .
+In a python environment, run the command 
+```
+pip install -e .
+```
 in the home directory of this folder. tests/ includes some test python scripts that you can then run from command line to generate data. 
  - generate_field.py     : From command line, run "python generate_field.py [dimx] [dimy] [dimz]" <br>
                            e.g. python generate_field.py 100 100 100 <br>
@@ -17,7 +20,7 @@ in the home directory of this folder. tests/ includes some test python scripts t
                            e.g. "PQ_features.hdf5" <br>
                            Then you can use notebooks/examples.ipynb to make visualizations! <br>
 
-Modules (contained in the src/ directory)
+## Modules (contained in the src/ directory)
  - thermal.py       : Generates initial thermal configuration
  - evolve_utils.py  : Utilities for evolving the config 
  - evolve.py        : Wrapper for actually evolving, with physical params. Generates .hdf5 files with field values and physical params as keys
